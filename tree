@@ -1,0 +1,111 @@
+.
+├── add_commit_push.sh
+├── cmd
+│   ├── collector
+│   │   └── main.go
+│   ├── generator
+│   │   └── main.go
+│   ├── user1
+│   │   └── main.go
+│   └── user2
+│       └── main.go
+├── config
+│   ├── config.go
+│   ├── opentsdb.go
+│   ├── postgresql.go
+│   ├── rabbitmq.go
+│   └── redis.go
+├── config_generator.json
+├── config_go.json
+├── config_postgresql.json
+├── config_rabbitmq.json
+├── config_redis.json
+├── docker
+│   ├── collector
+│   │   └── Dockerfile
+│   ├── generator
+│   │   └── Dockerfile
+│   ├── user1
+│   │   └── Dockerfile
+│   └── user2
+│       └── Dockerfile
+├── docker-compose.yml
+├── go.mod
+├── go.sum
+├── info
+│   ├── md-pdf
+│   │   ├── big_go-details.md
+│   │   ├── big_go-details.pdf
+│   │   ├── big_go-var2.md
+│   │   ├── big_go-var2.pdf
+│   │   ├── configs-info.md
+│   │   ├── go2plantum.md
+│   │   ├── links-rabbitmq.md
+│   │   └── README.pdf
+│   ├── plan-modify
+│   │   ├── new-README.md
+│   │   └── plan-version2.md
+│   ├── plantum
+│   │   ├── d2
+│   │   │   ├── d2-setup.md
+│   │   │   ├── d2-test1.d2
+│   │   │   ├── d2-test1.png
+│   │   │   ├── d2-test2.d2
+│   │   │   ├── d2-test2.png
+│   │   │   └── d2-working.md
+│   │   ├── Diagramms
+│   │   │   ├── advanced_web_service_with_on-premises.png
+│   │   │   ├── Advanced-Web-Service-with-On-Premises.py
+│   │   │   ├── big_go_architecture.png
+│   │   │   ├── big_go_architecture_.png
+│   │   │   ├── clustered_web_services.png
+│   │   │   ├── Clustered-Web-Services.py
+│   │   │   ├── diagrams-test.py
+│   │   │   ├── Event-Processing-on-AWS.py
+│   │   │   ├── event_processing.png
+│   │   │   ├── grouped_workers.png
+│   │   │   ├── grouped_workers.py
+│   │   │   ├── message_collecting.png
+│   │   │   └── Message-Collecting-System-on-GCP.py
+│   │   ├── pictogramm-styles.md
+│   │   └── test-hand.puml
+│   └── toGit.md
+├── internal
+│   ├── handlers
+│   │   └── handlers.go
+│   ├── models
+│   │   └── models.go
+│   ├── repository
+│   │   └── postgres.go
+│   ├── routes
+│   │   └── routes.go
+│   ├── services
+│   │   ├── collector
+│   │   │   └── collector.go
+│   │   ├── generator
+│   │   │   └── generator.go
+│   │   ├── opentsdb.go
+│   │   ├── rabbitmq.go
+│   │   ├── redis.go
+│   │   └── user
+│   │       └── user.go
+│   └── templates
+│       ├── base.html
+│       ├── index.html
+│       ├── logs.html
+│       ├── save
+│       └── *.tmpl
+├── main.go_
+├── main.sh
+├── pkg
+│   └── utils
+│       └── utils.go
+├── README.md
+├── save
+│   └── collector-main.old
+├── static
+│   ├── css
+│   └── js
+└── tree
+
+33 directories, 75 files
