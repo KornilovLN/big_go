@@ -1,0 +1,11 @@
+{
+    "server_port": "8080",
+    "page_title": "Big_GO application",
+    "database": {
+        "host": "postgres",
+        "port": 5432,
+        "user": "starmark",
+        "password": "18leon28",
+        "name": "postgres_go"
+    }
+}

@@ -1,0 +1,147 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:14
+    container_name: big_go_postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: big_go
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - big_go_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7
+    container_name: big_go_redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - big_go_network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: big_go_rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    networks:
+      - big_go_network
+    healthcheck:
+      test: ["CMD", "rabbitmqctl", "status"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  generator:
+    build:
+      context: .
+      dockerfile: docker/generator/Dockerfile
+    container_name: big_go_generator
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - big_go_network
+    volumes:
+      - ./config_go.json:/app/config_go.json
+      - ./config_rabbitmq.json:/app/config_rabbitmq.json  
+    environment:
+      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_PORT=5672
+      - RABBITMQ_USER=guest
+      - RABBITMQ_PASSWORD=guest
+
+
+  collector:
+    build:
+      context: .
+      dockerfile: docker/collector/Dockerfile
+    container_name: big_go_collector
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - big_go_network
+    volumes:
+      - ./config_go.json:/app/config_go.json
+      - ./config_rabbitmq.json:/app/config_rabbitmq.json
+      - ./config_postgresql.json:/app/config_postgresql.json
+      - ./config_redis.json:/app/config_redis.json  
+    environment:
+      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_PORT=5672
+      - RABBITMQ_USER=guest
+      - RABBITMQ_PASSWORD=guest
+      - POSTGRES_HOST=postgres
+      - POSTGRES_PORT=5432
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=big_go
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+  
+
+  user1:
+    build:
+      context: .
+      dockerfile: docker/user1/Dockerfile
+    container_name: big_go_user1
+    depends_on:
+      - collector
+    ports:
+      - "8082:8082"
+    networks:
+      - big_go_network
+    environment:
+      - COLLECTOR_HOST=collector
+      - COLLECTOR_PORT=8081
+
+  user2:
+    build:
+      context: .
+      dockerfile: docker/user2/Dockerfile
+    container_name: big_go_user2
+    depends_on:
+      - collector
+    ports:
+      - "8083:8083"
+    networks:
+      - big_go_network
+    environment:
+      - COLLECTOR_HOST=collector
+      - COLLECTOR_PORT=8081
+
+networks:
+  big_go_network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  redis_data:
+  rabbitmq_data:

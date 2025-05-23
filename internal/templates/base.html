@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ .SiteTitle }}</title> <!-- Use PageTitle here if dynamic -->
+    <!-- Include Bootstrap CSS from a CDN -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/style.css">
+    <script src="/static/js/script.js"></script>
+</head>
+<body>
+
+    <header class="bg-primary text-white p-3">
+        <div class="container">
+            <h1>{{ .SiteTitle }}</h1>
+        </div>
+    </header>
+
+    <div class="container mt-4">
+        <div class="row">
+            <aside class="col-md-3">
+                <!-- Sidebar content -->
+                <ul class="list-group">
+                    <li class="list-group-item"><a href="/">Home</a></li>
+                    <li class="list-group-item"><a href="/init_logs">Init Logs</a></li>
+                </ul>
+            </aside>
+            <main class="col-md-9">
+                {{ template "content" . }}
+            </main>
+        </div>
+    </div>
+
+    <footer class="bg-light text-center p-3 mt-4">
+        <div class="container">
+            <p>&copy; 2024 {{ .SiteTitle }}</p>
+        </div>
+    </footer>
+
+    <!-- Include Bootstrap JS and dependencies from a CDN -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="/static/js/script.js"></script>
+
+</body>
+</html>

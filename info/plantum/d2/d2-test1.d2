@@ -1,0 +1,76 @@
+system: "Big Go System" {
+  user: Пользователь {
+    shape: person
+  }
+  
+  frontend: "Frontend" {
+    user1: "User1 Dashboard" {
+      shape: rectangle
+      style: {
+        fill: "#CCFFCC"
+      }
+    }
+    
+    user2: "User2 Dashboard" {
+      shape: rectangle
+      style: {
+        fill: "#CCFFCC"
+      }
+    }
+  }
+  
+  backend: "Backend Services" {
+    generator: "Data Generator" {
+      shape: circle #rectangle
+      style: {
+        fill: "#FFCCCC"
+      }
+    }
+    
+    collector: "Data Collector" {
+      shape: circle #rectangle
+      style: {
+        fill: "#FFCCCC"
+      }
+    }
+  }
+  
+  databases: "Databases & Messaging" {
+    rabbitmq: "RabbitMQ" {
+      shape: cylinder
+      style: {
+        fill: "#CCCCFF"
+      }
+    }
+    
+    postgres: "PostgreSQL" {
+      shape: cylinder
+      style: {
+        fill: "#CCCCFF"
+      }
+    }
+    
+    redis: "Redis" {
+      shape: cylinder
+      style: {
+        fill: "#CCCCFF"
+      }
+    }
+  }
+  
+  # Связи
+  backend.generator -> databases.rabbitmq: "Публикует данные"
+  databases.rabbitmq -> backend.collector: "Потребляет данные"
+  backend.collector -> frontend.user1: "HTTP API"
+  backend.collector -> frontend.user2: "HTTP API"
+  backend.collector -> databases.postgres: "Сохраняет"
+  backend.collector -> databases.redis: "Кэширует"
+  
+  user -> frontend.user1: "Просматривает"
+  user -> frontend.user2: "Просматривает"
+  
+  frontend.user1 -> databases.postgres: "Запрашивает данные"
+  frontend.user2 -> databases.postgres: "Запрашивает данные"
+  databases.rabbitmq -> databases.redis: "Уведомления"
+  databases.redis -> databases.postgres: "Синхронизация"
+}

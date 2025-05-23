@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ .title }}</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        h1 {
+            color: #333;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+    </style>
+</head>
+<body>
+    <h1>{{ .title }}</h1>
+    
+    <h2>Последние полученные данные</h2>
+    
+    <table>
+        <tr>
+            <th>Время</th>
+            <th>Пост ID</th>
+            <th>Адрес</th>
+            <th>Температура (°C)</th>
+            <th>Давление (мм.рт.ст.)</th>
+            <th>Влажность (%)</th>
+        </tr>
+        {{ range .data }}
+        <tr>
+            <td>{{ .Meta.Timestamp }}</td>
+            <td>{{ .Meta.PostID }}</td>
+            <td>{{ .Meta.Address }}</td>
+            <td>{{ .Data.Temperature }}</td>
+            <td>{{ .Data.Pressure }}</td>
+            <td>{{ .Data.Humidity }}</td>
+        </tr>
+        {{ end }}
+    </table>
+    
+    <script>
+        // Автоматическое обновление страницы каждые 5 секунд
+        setTimeout(function() {
+            location.reload();
+        }, 5000);
+    </script>
+</body>
+</html>

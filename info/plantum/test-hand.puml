@@ -1,0 +1,29 @@
+@startuml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+Person(user, "User", "Пользователь системы")
+
+Container(generator, "Generator", "Go", "Генерирует данные и отправляет в RabbitMQ")
+Container(collector, "Collector", "Go", "Получает данные из RabbitMQ и отправляет пользователям")
+Container(user1, "User1", "Go/Gin", "Отображает данные для пользователя 1")
+Container(user2, "User2", "Go/Gin", "Отображает данные для пользователя 2")
+
+ContainerDb(rabbitmq, "RabbitMQ", "Message Broker", "Очередь сообщений")
+ContainerDb(postgres, "PostgreSQL", "Database", "Хранение данных")
+ContainerDb(redis, "Redis", "Key-Value Store", "Кэширование данных")
+
+Rel(generator, rabbitmq, "Отправляет данные", "AMQP")
+Rel(rabbitmq, collector, "Передает данные", "AMQP")
+Rel(collector, user1, "Отправляет данные", "HTTP")
+Rel(collector, user2, "Отправляет данные", "HTTP")
+Rel(user, user1, "Просматривает", "HTTP")
+Rel(user, user2, "Просматривает", "HTTP")
+Rel(collector, postgres, "Сохраняет данные", "SQL")
+Rel(collector, redis, "Кэширует данные", "Redis Protocol")
+
+' Добавленные отношения
+Rel(user1, postgres, "Читает данные", "SQL")
+Rel(user2, postgres, "Читает данные", "SQL")
+Rel(rabbitmq, redis, "Отправляет сообщения", "AMQP")
+Rel(redis, postgres, "Передает данные", "Redis Protocol")
+@enduml
