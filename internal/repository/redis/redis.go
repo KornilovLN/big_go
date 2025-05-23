@@ -1,24 +1,25 @@
-package services
+package redis
 
 import (
-	"big_go/config"
-	"big_go/internal/models"
 	"context"
 	"encoding/json"
 	"fmt"
 	"log"
 	"time"
 
+	"big_go/config"
+	"big_go/internal/models"
+
 	"github.com/go-redis/redis/v8"
 )
 
-// RedisRepository представляет репозиторий для работы с Redis
-type RedisRepository struct {
+// Repository представляет репозиторий для работы с Redis
+type Repository struct {
 	client *redis.Client
 }
 
-// NewRedisRepository создает новый репозиторий Redis
-func NewRedisRepository(config *config.RedisConfig) (*RedisRepository, error) {
+// New создает новый репозиторий Redis
+func New(config *config.RedisConfig) (*Repository, error) {
 	client := redis.NewClient(&redis.Options{
 		Addr:     fmt.Sprintf("%s:%d", config.Host, config.Port),
 		Password: config.Password,
@@ -34,13 +35,13 @@ func NewRedisRepository(config *config.RedisConfig) (*RedisRepository, error) {
 		return nil, fmt.Errorf("failed to connect to Redis: %w", err)
 	}
 
-	return &RedisRepository{
+	return &Repository{
 		client: client,
 	}, nil
 }
 
 // SaveData сохраняет данные в Redis
-func (r *RedisRepository) SaveData(ctx context.Context, data *models.SensorData) error {
+func (r *Repository) SaveData(ctx context.Context, data *models.SensorData) error {
 	// Создаем ключ в формате "sensor:{type}:{id}:{timestamp}"
 	key := fmt.Sprintf("sensor:%s:%s:%d", data.Type, data.ID, data.Timestamp)
 
@@ -67,7 +68,7 @@ func (r *RedisRepository) SaveData(ctx context.Context, data *models.SensorData)
 }
 
 // GetData получает данные из Redis по ключу
-func (r *RedisRepository) GetData(ctx context.Context, key string) (*models.SensorData, error) {
+func (r *Repository) GetData(ctx context.Context, key string) (*models.SensorData, error) {
 	// Получаем данные из Redis
 	jsonData, err := r.client.Get(ctx, key).Result()
 	if err != nil {
@@ -88,7 +89,7 @@ func (r *RedisRepository) GetData(ctx context.Context, key string) (*models.Sens
 }
 
 // GetLatestData получает последние данные для указанного получателя
-func (r *RedisRepository) GetLatestData(ctx context.Context, recipient string, limit int) ([]*models.SensorData, error) {
+func (r *Repository) GetLatestData(ctx context.Context, recipient string, limit int) ([]*models.SensorData, error) {
 	// Ищем ключи, соответствующие шаблону
 	pattern := fmt.Sprintf("sensor:*:*:*")
 	keys, err := r.client.Keys(ctx, pattern).Result()
@@ -121,7 +122,7 @@ func (r *RedisRepository) GetLatestData(ctx context.Context, recipient string, l
 }
 
 // Subscribe подписывается на уведомления о новых данных
-func (r *RedisRepository) Subscribe(ctx context.Context, recipient string) (<-chan string, error) {
+func (r *Repository) Subscribe(ctx context.Context, recipient string) (<-chan string, error) {
 	// Создаем канал для подписки
 	pubsub := r.client.Subscribe(ctx, fmt.Sprintf("new_data:%s", recipient))
 
@@ -148,6 +149,6 @@ func (r *RedisRepository) Subscribe(ctx context.Context, recipient string) (<-ch
 }
 
 // Close закрывает соединение с Redis
-func (r *RedisRepository) Close() error {
+func (r *Repository) Close() error {
 	return r.client.Close()
 }

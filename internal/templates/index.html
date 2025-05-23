@@ -1,64 +1,62 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>{{ .title }}</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
+{{define "content"}}
+<div class="messages-container">
+    <h2>Последние сообщения</h2>
+    <div id="messages">
+        {{range .Messages}}
+        <div class="message">
+            <div class="message-content">
+                <span class="message-id">ID: {{.ID}}</span> |
+                <span class="message-type">Тип: {{.Type}}</span> |
+                <span class="message-time">Время: {{.Timestamp.Format "02.01.2006 15:04:05"}}</span> |
+                <span class="message-value">Значение: {{.Value}}</span>
+            </div>
+        </div>
+        {{else}}
+        <p>Нет доступных сообщений</p>
+        {{end}}
+    </div>
+</div>
+
+<script>
+    // Подключение к Server-Sent Events
+    const evtSource = new EventSource("/events");
+    const messagesContainer = document.getElementById("messages");
+
+    evtSource.onmessage = function(event) {
+        const data = JSON.parse(event.data);
+        
+        // Создание элемента сообщения
+        const messageDiv = document.createElement("div");
+        messageDiv.className = "message";
+        
+        // Форматирование времени
+        const timestamp = new Date(data.Timestamp);
+        const formattedTime = timestamp.toLocaleString("ru-RU");
+        
+        // Создание содержимого сообщения
+        const contentDiv = document.createElement("div");
+        contentDiv.className = "message-content";
+        
+        contentDiv.innerHTML = 
+            '<span class="message-id">ID: ' + data.ID + '</span> | ' +
+            '<span class="message-type">Тип: ' + data.Type + '</span> | ' +
+            '<span class="message-time">Время: ' + formattedTime + '</span> | ' +
+            '<span class="message-value">Значение: ' + data.Value + '</span>';
+        
+        // Добавление содержимого в сообщение
+        messageDiv.appendChild(contentDiv);
+        
+        // Добавление сообщения в начало списка
+        messagesContainer.insertBefore(messageDiv, messagesContainer.firstChild);
+        
+        // Ограничение количества отображаемых сообщений
+        if (messagesContainer.children.length > 10) {
+            messagesContainer.removeChild(messagesContainer.lastChild);
         }
-        h1 {
-            color: #333;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-        }
-        th, td {
-            border: 1px solid #ddd;
-            padding: 8px;
-            text-align: left;
-        }
-        th {
-            background-color: #f2f2f2;
-        }
-        tr:nth-child(even) {
-            background-color: #f9f9f9;
-        }
-    </style>
-</head>
-<body>
-    <h1>{{ .title }}</h1>
-    
-    <h2>Последние полученные данные</h2>
-    
-    <table>
-        <tr>
-            <th>Время</th>
-            <th>Пост ID</th>
-            <th>Адрес</th>
-            <th>Температура (°C)</th>
-            <th>Давление (мм.рт.ст.)</th>
-            <th>Влажность (%)</th>
-        </tr>
-        {{ range .data }}
-        <tr>
-            <td>{{ .Meta.Timestamp }}</td>
-            <td>{{ .Meta.PostID }}</td>
-            <td>{{ .Meta.Address }}</td>
-            <td>{{ .Data.Temperature }}</td>
-            <td>{{ .Data.Pressure }}</td>
-            <td>{{ .Data.Humidity }}</td>
-        </tr>
-        {{ end }}
-    </table>
-    
-    <script>
-        // Автоматическое обновление страницы каждые 5 секунд
-        setTimeout(function() {
-            location.reload();
-        }, 5000);
-    </script>
-</body>
-</html>
+    };
+
+    evtSource.onerror = function() {
+        console.error("EventSource failed. Reconnecting...");
+    };
+</script>
+{{end}}

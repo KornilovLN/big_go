@@ -43,6 +43,7 @@
 │   │   ├── links-rabbitmq.md
 │   │   └── README.pdf
 │   ├── plan-modify
+│   │   ├── new-branch.md
 │   │   ├── new-README.md
 │   │   └── plan-version2.md
 │   ├── plantum
@@ -76,7 +77,8 @@
 │   ├── models
 │   │   └── models.go
 │   ├── repository
-│   │   └── postgres.go
+│   │   └── redis
+│   │       └── redis.go
 │   ├── routes
 │   │   └── routes.go
 │   ├── services
@@ -84,9 +86,6 @@
 │   │   │   └── collector.go
 │   │   ├── generator
 │   │   │   └── generator.go
-│   │   ├── opentsdb.go
-│   │   ├── rabbitmq.go
-│   │   ├── redis.go
 │   │   └── user
 │   │       └── user.go
 │   └── templates
@@ -102,10 +101,18 @@
 │       └── utils.go
 ├── README.md
 ├── save
-│   └── collector-main.old
+│   ├── collector
+│   │   └── main.go
+│   ├── collector-main.old
+│   ├── user1
+│   │   └── main.go
+│   └── user2
+│       └── main.go
 ├── static
 │   ├── css
+│   │   └── style.css
 │   └── js
+│       └── script.js
 └── tree
 
-33 directories, 75 files
+37 directories, 78 files

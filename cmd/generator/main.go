@@ -13,7 +13,6 @@ import (
 )
 
 func main() {
-
 	// Инициализация конфигурации RabbitMQ
 	rabbitConfig, err := config.LoadRabbitMQConfig("config_rabbitmq.json")
 	if err != nil {
@@ -21,9 +20,8 @@ func main() {
 	}
 
 	// Подключение к RabbitMQ
-	conn, err := amqp.Dial(
-		"amqp://" + rabbitConfig.User + ":" + rabbitConfig.Password +
-			"@" + rabbitConfig.Host + ":" + fmt.Sprintf("%d", rabbitConfig.Port) + "/" + rabbitConfig.VHost,
+	conn, err := amqp.Dial("amqp://" + rabbitConfig.User + ":" + rabbitConfig.Password +
+		"@" + rabbitConfig.Host + ":" + fmt.Sprintf("%d", rabbitConfig.Port) + "/" + rabbitConfig.VHost,
 	)
 	if err != nil {
 		log.Fatalf("Ошибка подключения к RabbitMQ: %v", err)
@@ -51,7 +49,7 @@ func main() {
 	}
 
 	// Инициализация генератора данных
-	gen := generator.NewGenerator()
+	gen := generator.New()
 
 	// Запуск генерации данных
 	for {

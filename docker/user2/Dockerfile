@@ -1,4 +1,4 @@
-FROM golang:1.22-alpine
+FROM golang:1.22-alpine AS builder
 
 WORKDIR /app
 
@@ -7,8 +7,17 @@ RUN go mod download
 
 COPY . .
 
-RUN go build -o /user2 ./cmd/user2/main.go
+RUN CGO_ENABLED=0 GOOS=linux go build -o user2 ./cmd/user2
+
+FROM alpine:latest
+
+WORKDIR /app
+
+COPY --from=builder /app/user2 .
+COPY --from=builder /app/internal/templates /app/internal/templates
+COPY --from=builder /app/static /app/static
+COPY --from=builder /app/config_redis.json .
 
 EXPOSE 8083
 
-CMD ["/user2"]
+CMD ["./user2"]

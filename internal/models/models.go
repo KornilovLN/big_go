@@ -1,11 +1,17 @@
 package models
 
-import "time"
+import (
+	"time"
+)
 
-// SensorData представляет данные от датчиков
+// SensorData представляет данные от сенсора
 type SensorData struct {
-	Meta MetaData  `json:"meta"`
-	Data DataPoint `json:"data"`
+	ID        string    `json:"id"`
+	Type      string    `json:"type"`
+	Value     float64   `json:"value"`
+	Timestamp int64     `json:"timestamp"`
+	Recipient string    `json:"recipient"`
+	CreatedAt time.Time `json:"created_at"`
 }
 
 // MetaData содержит метаданные сообщения

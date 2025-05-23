@@ -3,27 +3,41 @@ package main
 import (
 	"big_go/config"
 	"big_go/internal/models"
-	"bytes"
+	"big_go/internal/repository/redis"
+	"context"
 	"encoding/json"
 	"fmt"
 	"log"
-	"net/http"
 
 	"github.com/streadway/amqp"
 )
 
 func main() {
+	// Инициализация контекста
+	ctx := context.Background()
+
 	// Инициализация конфигурации RabbitMQ
 	rabbitConfig, err := config.LoadRabbitMQConfig("config_rabbitmq.json")
 	if err != nil {
 		log.Fatalf("Ошибка загрузки конфигурации RabbitMQ: %v", err)
 	}
 
+	// Инициализация конфигурации Redis
+	redisConfig, err := config.LoadRedisConfig("config_redis.json")
+	if err != nil {
+		log.Fatalf("Ошибка загрузки конфигурации Redis: %v", err)
+	}
+
+	// Подключение к Redis
+	redisRepo, err := redis.New(redisConfig)
+	if err != nil {
+		log.Fatalf("Ошибка подключения к Redis: %v", err)
+	}
+	defer redisRepo.Close()
+
 	// Подключение к RabbitMQ
-	conn, err := amqp.Dial(
-		"amqp://" + rabbitConfig.User + ":" + rabbitConfig.Password +
-			"@" + rabbitConfig.Host + ":" + fmt.Sprintf("%d", rabbitConfig.Port) + "/" + rabbitConfig.VHost,
-	)
+	conn, err := amqp.Dial(fmt.Sprintf("amqp://%s:%s@%s:%d/",
+		rabbitConfig.User, rabbitConfig.Password, rabbitConfig.Host, rabbitConfig.Port))
 	if err != nil {
 		log.Fatalf("Ошибка подключения к RabbitMQ: %v", err)
 	}
@@ -49,11 +63,11 @@ func main() {
 		log.Fatalf("Ошибка объявления очереди: %v", err)
 	}
 
-	// Настройка потребителя сообщений
+	// Получение сообщений
 	msgs, err := ch.Consume(
 		q.Name, // queue
 		"",     // consumer
-		true,   // auto-ack
+		false,  // auto-ack
 		false,  // exclusive
 		false,  // no-local
 		false,  // no-wait
@@ -66,38 +80,24 @@ func main() {
 	log.Println("Коллектор запущен. Ожидание сообщений...")
 
 	// Обработка сообщений
-	for d := range msgs {
-		var sensorData models.SensorData
-		err := json.Unmarshal(d.Body, &sensorData)
+	for msg := range msgs {
+		var data models.SensorData
+		err := json.Unmarshal(msg.Body, &data)
 		if err != nil {
-			log.Printf("Ошибка десериализации сообщения: %v", err)
+			log.Printf("Ошибка разбора сообщения: %v", err)
+			msg.Nack(false, true) // Отклонить сообщение и вернуть в очередь
 			continue
 		}
 
-		log.Printf("Получено сообщение: %+v", sensorData)
-
-		// Определяем, куда отправить данные
-		var endpoint string
-		if sensorData.Meta.Recipient == "User1" {
-			endpoint = "http://user1:8082/data"
-		} else {
-			endpoint = "http://user2:8083/data"
-		}
-
-		// Отправляем данные соответствующему пользователю
-		jsonData, err := json.Marshal(sensorData)
+		// Сохранение данных в Redis
+		err = redisRepo.SaveData(ctx, &data)
 		if err != nil {
-			log.Printf("Ошибка сериализации данных: %v", err)
+			log.Printf("Ошибка сохранения данных в Redis: %v", err)
+			msg.Nack(false, true) // Отклонить сообщение и вернуть в очередь
 			continue
 		}
 
-		resp, err := http.Post(endpoint, "application/json", bytes.NewBuffer(jsonData))
-		if err != nil {
-			log.Printf("Ошибка отправки данных пользователю: %v", err)
-			continue
-		}
-		resp.Body.Close()
-
-		log.Printf("Данные успешно отправлены на %s", endpoint)
+		log.Printf("Получены данные от сенсора %s (тип: %s): %.2f", data.ID, data.Type, data.Value)
+		msg.Ack(false) // Подтвердить обработку сообщения
 	}
 }

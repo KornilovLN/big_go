@@ -1,48 +1,84 @@
+{{define "base"}}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ .SiteTitle }}</title> <!-- Use PageTitle here if dynamic -->
-    <!-- Include Bootstrap CSS from a CDN -->
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="/static/css/style.css">
-    <script src="/static/js/script.js"></script>
+    <title>{{.Title}}</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            color: #333;
+            background-color: #f4f4f4;
+        }
+        header {
+            background-color: #35424a;
+            color: white;
+            padding: 1rem;
+            text-align: center;
+        }
+        main {
+            padding: 1rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        footer {
+            background-color: #35424a;
+            color: white;
+            text-align: center;
+            padding: 1rem;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+        }
+        .messages-container {
+            background-color: white;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            padding: 1rem;
+            margin-bottom: 60px;
+        }
+        .message {
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin-bottom: 0.5rem;
+            padding: 0.5rem;
+            background-color: #f9f9f9;
+        }
+        .message-content {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            align-items: center;
+        }
+        .message-id, .message-type, .message-time, .message-value {
+            font-size: 0.9rem;
+            color: #333;
+        }
+        .message-value {
+            font-weight: bold;
+        }
+    </style>
 </head>
 <body>
-
-    <header class="bg-primary text-white p-3">
-        <div class="container">
-            <h1>{{ .SiteTitle }}</h1>
-        </div>
+    <header>
+        <h1>{{.Title}}</h1>
     </header>
-
-    <div class="container mt-4">
-        <div class="row">
-            <aside class="col-md-3">
-                <!-- Sidebar content -->
-                <ul class="list-group">
-                    <li class="list-group-item"><a href="/">Home</a></li>
-                    <li class="list-group-item"><a href="/init_logs">Init Logs</a></li>
-                </ul>
-            </aside>
-            <main class="col-md-9">
-                {{ template "content" . }}
-            </main>
-        </div>
-    </div>
-
-    <footer class="bg-light text-center p-3 mt-4">
-        <div class="container">
-            <p>&copy; 2024 {{ .SiteTitle }}</p>
-        </div>
+    <main>
+        {{template "content" .}}
+    </main>
+    <footer>
+        <p>&copy; 2023 Big Go Project</p>
     </footer>
-
-    <!-- Include Bootstrap JS and dependencies from a CDN -->
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-    <script src="/static/js/script.js"></script>
-
+    <script>
+        // Функция для форматирования чисел с двумя десятичными знаками
+        function formatNumber(num) {
+            return num.toFixed(2);
+        }
+    </script>
 </body>
 </html>
+{{end}}
